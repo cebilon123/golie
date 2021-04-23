@@ -1,10 +1,7 @@
 package config
 
 import (
-	"encoding/json"
-	"fmt"
 	"os"
-	path2 "path"
 )
 
 //Init is an initial config.
@@ -13,31 +10,32 @@ type Init struct {
 	Path string `json:"path"`
 }
 
-const configFileName = "golie.config"
+const (
+	configFileName = "golie.config"
+)
 
-//LoadInitConfig loads initial config file which is json file type.
-func LoadInitConfig(directoryPath string) *Init {
-	path := path2.Join(directoryPath, configFileName)
+//ReadInitConfig reads initial config into binary slice which should be deserialized into Init struct.
+func ReadInitConfig(directoryPath string) []byte {
+	path := directoryPath + "\\" + configFileName
 
 	content, err := os.ReadFile(path)
 
 	if err != nil {
 		//config file probably do not exists
-		if !createInitConfig(path) {
+		if !createInitConfig(directoryPath, path) {
 			panic("Cannot create golie.config")
 		}
 	}
 
-	init := &Init{}
-	if err := json.Unmarshal(content, init); err != nil {
-		panic(fmt.Sprint("Error while deserializing config: ", err))
-	}
-
-	return init
+	return content
 }
 
 //createInitConfig creates initial config if it not exists.
-func createInitConfig(path string) bool {
+func createInitConfig(directoryPath string, path string) bool {
+	if err := os.MkdirAll(directoryPath, os.ModePerm); err != nil {
+		return false
+	}
+
 	if _, err := os.Create(path); err != nil {
 		return false
 	}
