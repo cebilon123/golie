@@ -2,9 +2,11 @@ package cfg
 
 import (
 	"encoding/binary"
-	"github.com/fatih/structs"
-	"github.com/mitchellh/mapstructure"
 	"os"
+)
+
+const (
+	configurationFileName = "config.bin"
 )
 
 //Configuration represents serialized configuration for user.
@@ -13,43 +15,27 @@ type Configuration struct {
 }
 
 //Equal function to check if configurations are the same.
-func (c *Configuration) Equal(c2 *Configuration) bool{
+func (c *Configuration) Equal(c2 *Configuration) bool {
 	return c.Path == c2.Path
 }
 
-//TODO Write tests for this OverwriteWithDifferentFields()
-
-//OverwriteWithDifferentFields overwrites configuration with different values of c2.
+//OverwriteWithDifferentFields overwrites configuration with different values of c2. This is simplified (with use of ifs)
+//in sake of speed and efficiency.
 func (c *Configuration) OverwriteWithDifferentFields(c2 *Configuration) {
-	//struct to overwrite
-	m := structs.Map(c)
-	m2 := structs.Map(c2)
-
-	for key := range m {
-		if m2[key] != nil && m[key] != m2[key] {
-			m[key] = m2[key]
-		}
-	}
-
-	if err := mapstructure.Decode(m, &c); err != nil {
-		println(err)
-		return
+	if (c.Path != c2.Path || len(c.Path) == 0) && len(c2.Path) > 0 {
+		c.Path = c2.Path
 	}
 }
 
-const (
-	configurationFileName = "config.bin"
-)
-
 func Deserialize() *Configuration {
-
+	return nil
 }
 
 //Serialize serializes configuration into file. If there is existing config file it checks differences and overwrites only
 //different fields.
 func (c *Configuration) Serialize() {
 	existingConfig := Deserialize()
-	if existingConfig != nil && !c.Equal(existingConfig){
+	if existingConfig != nil && !c.Equal(existingConfig) {
 		c.OverwriteWithDifferentFields(existingConfig)
 	}
 
