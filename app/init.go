@@ -22,13 +22,8 @@ func Init() {
 }
 
 var config = func() *cobra.Command {
-	var (
-		//path is location of directory which is being watched and synced
-		path string
-	)
-
 	cmd := &cobra.Command{
-		Use:  "config",
+		Use:  "config [-p path]",
 		Long: "Manage golie configuration",
 		Short: "Manage golie configuration",
 		Run: func(cmd *cobra.Command, args []string) {
@@ -37,14 +32,6 @@ var config = func() *cobra.Command {
 			}
 		},
 	}
-
-	cmd.PersistentFlags().StringVarP(
-		&path,
-		"path",
-		"p",
-		"",
-		"Set path to location which should be watched and synced",
-	)
 
 	return cmd
 }
